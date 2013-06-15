@@ -7,10 +7,9 @@
 # 14-Jun-2013 
 
 # Requires HTCondor 7.9.5+
-import htcondor
-import classad
+import htcondor, classad
 
-import json
+import json, time
 
 # Define HTCondor collector and the associated Schedd
 # the collector has to have some awareness of this schedd in order to work  
@@ -30,4 +29,4 @@ for job in jobs[:]:
 d = {}
 for group in list(set(groupList)): 
   d[group] = groupList.count(group)
-print json.dumps(d)
+print json.dumps([time.time(),d])
