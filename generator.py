@@ -42,7 +42,13 @@ mappedVals = map(timestamp,groupList)
 
 
 ## Some redis code
+# Connects to local redis server and creates a uniq id for each job
 # import redis
 # r_server =redis.Redis("localhost")
-# for keypair in mappedVals:
-#   r_server.set(keypair[0],keypair[1])
+# id_ = 0
+# for keypair in mappedVals: 
+#   r_server.set(str(id_)+":"+keypair[0],keypair[1])
+#   id_ += 1
+
+
+## but this ID isnt preserved across runs or anytihng like that 
