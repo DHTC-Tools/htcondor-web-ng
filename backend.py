@@ -16,5 +16,7 @@ parser.add_argument("collector", help="address of the HTCondor collector")
 args = parser.parse_args()
 
 coll = htcondor.Collector(args.collector)
-results = coll.query(htcondor.AdTypes.Startd, "true", ["Name"])
-print len(results)
+results = coll.query(htcondor.AdTypes.Startd, "true",['Name','RemoteGroup','NodeOnline','JobId','State','RemoteOwner','COLLECTOR_HOST_STRING'])
+print results[0]
+
+
