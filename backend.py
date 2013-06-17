@@ -5,23 +5,27 @@
 
 # Import some standard python utilities
 import sys, time, argparse 
-
-# Requires HTCondor 7.9.5+
-import htcondor, classad
-
-# Setup redis
+import htcondor, classad # requires condor 7.9.5+
 import redis
-
 
 ## Parse our arguments
 parser = argparse.ArgumentParser(description="Poll HTCondor collector for information and dump into redis")
 parser.add_argument("collector", help="address of the HTCondor collector")
+parser.add_argument("redserver", help="address of the Redis server") 
 args = parser.parse_args()
 
+# Connect to condor collector and grab some data
 coll = htcondor.Collector(args.collector)
 slotState = coll.query(htcondor.AdTypes.Startd, "true",['Name','RemoteGroup','NodeOnline','JobId','State','RemoteOwner','COLLECTOR_HOST_STRING'])
 
-dataList = []
+#Setup redis
+r_server =redis.Redis(args.redserver)
+
+# This forms the data structure and pushes it into redis as a list 
 for slot in slotState[:]:
-  #dataList.append(slot[#' 
-  redis.lpush(
+  print slot
+  #key = slot['Name']
+  #value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['COLLECTOR_HOST_STRING']]
+  #print key
+  #print value
+  #redis.lpush(slot['Name'],
