@@ -24,10 +24,11 @@ r_server =redis.Redis(args.redserver)
 # This forms the data structure and pushes it into redis as a list 
 for slot in slotState[:]:
   key = slot['Name']
-  if slot['State'] == "Owner":  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
+  if (slot['State'] == "Owner") or (slot['State'] == "Idle"):  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
     value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
   else: 
     value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['RemoteGroup'],slot['COLLECTOR_HOST_STRING']]
-  print key
-  print value
-  #redis.lpush(slot['Name'],
+### this is wrong. when the code runs again, the new entries will get appended 
+### onto the old ones. Instead, we need to update the entries.
+  for entry in value:
+	r_server.lpush(slot['Name'],entry)
