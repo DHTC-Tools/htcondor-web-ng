@@ -23,9 +23,11 @@ r_server =redis.Redis(args.redserver)
 
 # This forms the data structure and pushes it into redis as a list 
 for slot in slotState[:]:
-  print slot
-  #key = slot['Name']
-  #value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['COLLECTOR_HOST_STRING']]
+  key = slot['Name']
+  if slot['State'] = "Owner":  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
+    value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
+  else 
+    value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['RemoteGroup'],slot['COLLECTOR_HOST_STRING']]
   #print key
   #print value
   #redis.lpush(slot['Name'],
