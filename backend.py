@@ -3,9 +3,14 @@
 # L.B. 21-Jun-2013
 
 ### notes:
-# currently i can push about data for 1000 slots per second into redis)
-# this is a nice number -- scaling the sampling rate is really easy
-# but i'd love to see better performance.
+# 1) currently i can push about data for 1000 slots per second into redis) this
+#    is a nice number -- scaling the sampling rate is really easy but i'd but 
+#    i'd love to see better performance. possibly could use pipelining
+# 2) the indexing is really stupid right now. needs fixed.
+# 3) the whole code needs to be rewritten to accept multiple collectors
+#    simultaneously. since each collector daemon is on a separate server, i
+#    don't see why we can't parallelize this. but we would first need to figure
+#    out where the bottleneck is. likely my crappy code.
 
 # Import some standard python utilities
 import sys, time, argparse 
