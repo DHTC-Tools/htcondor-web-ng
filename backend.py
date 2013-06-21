@@ -1,7 +1,6 @@
 #!/bin/env python
 # Polls the Condor collector for some data and outputs it to redis
-# data structure is something like slot@host = [list,of,some,values] 
-# L.B. 17-Jun-2013
+# L.B. 21-Jun-2013
 
 # Import some standard python utilities
 import sys, time, argparse 
@@ -26,10 +25,11 @@ r_server =redis.Redis(args.redserver)
 
 # Let's set the timestamp outside of the loop, such that each time we run the 
 # backend, all nodes report the same timestamp. 
-_tmpKey = str(int(time.time()))
+timestamp = str(int(time.time()))
+keyIndex = []
 # This forms the data structure and pushes it into redis as a list.
 for slot in slotState[:]:
-  key = appId + ":" + slot['Name'] + ":" + _tmpKey
+  key = appId + ":" + slot['Name'] + ":" + timestamp 
   if (slot['State'] == "Owner") or (slot['State'] == "Unclaimed"):  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
     value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
   else: 
@@ -37,3 +37,10 @@ for slot in slotState[:]:
   for entry in value:
       # we could probably make this faster by pipelining
       r_server.lpush(key,entry)
+  # Add the list of keys to an index
+  keyIndex.append(key)
+
+print keyIndex
+# need some logic to check if the key exists
+# suspect it will fail if the key does not initially exist
+r_server.lset("calliope:index:latest",0,keyIndex)
