@@ -37,24 +37,17 @@ r_server =redis.Redis(args.redserver)
 # backend, all nodes report the same timestamp. 
 timestamp = str(int(time.time()))
 indexVal = []
+indexKey = appId + ":index" # bad naming scheme or _worst_ name scheme?
 # This forms the data structure and pushes it into redis as a list.
 for slot in slotState[:]:
-  key = appId + ":" + slot['Name'] + ":" + timestamp 
+  uniqId = appId + ":" + slot['Name']
   if (slot['State'] == "Owner") or (slot['State'] == "Unclaimed"):  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
     value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
   else: 
     value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['RemoteGroup'],slot['COLLECTOR_HOST_STRING']]
   for entry in value:
       # we could probably make this faster by pipelining
-      r_server.lpush(key,entry)
+      r_server.lpush(uniqId+":"+timestamp,entry)
   # Add the list of keys to an index (now the keys are values O_o)
-  indexVal.append(key)
-
-indexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
-# this is an inappropriate use of a list.
-# because we concatinate the whole list into a single index.
-# bad bad bad
-if r_server.exists(indexKey) == True: 
-  r_server.lset(indexKey,0,indexVal)
-else: 
-  r_server.lpush(indexKey,indexVal)
+  r_server.sadd(indexKey,uniqId) 
+  r_server.lpush(indexKey +":latest:timestamp",timestamp)
