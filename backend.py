@@ -26,7 +26,7 @@ r_server =redis.Redis(args.redserver)
 # Let's set the timestamp outside of the loop, such that each time we run the 
 # backend, all nodes report the same timestamp. 
 timestamp = str(int(time.time()))
-KeyIndexVal == []
+indexVal = []
 # This forms the data structure and pushes it into redis as a list.
 for slot in slotState[:]:
   key = appId + ":" + slot['Name'] + ":" + timestamp 
@@ -39,10 +39,12 @@ for slot in slotState[:]:
       r_server.lpush(key,entry)
   # Add the list of keys to an index (now the keys are values O_o)
   # better naming needed..
-  keyIndexVal.append(key)
+  indexVal.append(key)
 
-keyIndexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
+indexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
 # need some logic to check if the key exists
 # suspect it will fail if the key does not initially exist
-if r_server.exists("") == "True" 
-r_server.lset(keyIndexKey,0,keyIndexValue)
+if r_server.exists(indexKey) == "True": 
+  r_server.lset(indexKey,0,indexValue)
+else: 
+  r_server.lpush(indexKey,indexVal)
