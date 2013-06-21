@@ -47,8 +47,6 @@ indexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
 print indexKey
 print r_server.exists(indexKey)
 if r_server.exists(indexKey) == True: 
-  print "true"
   r_server.lset(indexKey,0,indexVal)
 else: 
-  print "false"
   r_server.lpush(indexKey,indexVal)
