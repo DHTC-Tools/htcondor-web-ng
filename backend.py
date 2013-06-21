@@ -44,7 +44,11 @@ for slot in slotState[:]:
 indexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
 # need some logic to check if the key exists
 # suspect it will fail if the key does not initially exist
-if r_server.exists(indexKey) == "True": 
-  r_server.lset(indexKey,0,indexValue)
+print indexKey
+print r_server.exists(indexKey)
+if r_server.exists(indexKey) == True: 
+  print "true"
+  r_server.lset(indexKey,0,indexVal)
 else: 
+  print "false"
   r_server.lpush(indexKey,indexVal)
