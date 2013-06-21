@@ -2,6 +2,11 @@
 # Polls the Condor collector for some data and outputs it to redis
 # L.B. 21-Jun-2013
 
+### notes:
+# currently i can push about data for 1000 slots per second into redis)
+# this is a nice number -- scaling the sampling rate is really easy
+# but i'd love to see better performance.
+
 # Import some standard python utilities
 import sys, time, argparse 
 import classad, htcondor # requires condor 7.9.5+
@@ -38,14 +43,12 @@ for slot in slotState[:]:
       # we could probably make this faster by pipelining
       r_server.lpush(key,entry)
   # Add the list of keys to an index (now the keys are values O_o)
-  # better naming needed..
   indexVal.append(key)
 
 indexKey = appId + ":index:latest" # bad naming scheme or _worst_ name scheme?
-# need some logic to check if the key exists
-# suspect it will fail if the key does not initially exist
-print indexKey
-print r_server.exists(indexKey)
+# this is an inappropriate use of a list.
+# because we concatinate the whole list into a single index.
+# bad bad bad
 if r_server.exists(indexKey) == True: 
   r_server.lset(indexKey,0,indexVal)
 else: 
