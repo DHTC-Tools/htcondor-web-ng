@@ -22,12 +22,17 @@ slotState = coll.query(htcondor.AdTypes.Startd, "true",['Name','RemoteGroup','No
 #Setup redis
 r_server =redis.Redis(args.redserver)
 
-# This forms the data structure and pushes it into redis as a list 
+# Let's set the timestamp outside of the loop, such that each time we run the 
+# backend, all nodes report the same timestamp. 
+_tmpKey = str(int(time.time()))
+# This forms the data structure and pushes it into redis as a list.
 for slot in slotState[:]:
-  key = slot['Name']
+  key = _tmpKey + ":" + slot['Name']
+  print key
   if (slot['State'] == "Owner") or (slot['State'] == "Unclaimed"):  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
     value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
   else: 
     value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['RemoteGroup'],slot['COLLECTOR_HOST_STRING']]
   for entry in value:
       r_server.lpush(slot['Name'],entry)
+  
