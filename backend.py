@@ -17,7 +17,9 @@ args = parser.parse_args()
 # Connect to condor collector and grab some data
 coll = htcondor.Collector(args.collector)
 slotState = coll.query(htcondor.AdTypes.Startd, "true",['Name','RemoteGroup','NodeOnline','JobId','State','RemoteOwner','COLLECTOR_HOST_STRING'])
-#print slotState
+
+# Set our application id
+appId = "calliope"
 
 #Setup redis
 r_server =redis.Redis(args.redserver)
@@ -27,12 +29,11 @@ r_server =redis.Redis(args.redserver)
 _tmpKey = str(int(time.time()))
 # This forms the data structure and pushes it into redis as a list.
 for slot in slotState[:]:
-  key = _tmpKey + ":" + slot['Name']
-  print key
+  key = appId + ":" + slot['Name'] + ":" + _tmpKey
   if (slot['State'] == "Owner") or (slot['State'] == "Unclaimed"):  ## If slot is in owner state there is no RemoteOwner or RemoteGroup
     value = ["nil",slot['NodeOnline'],slot['State'],"nil","nil",slot['COLLECTOR_HOST_STRING']]
   else: 
     value = [slot['JobId'],slot['NodeOnline'],slot['State'],slot['RemoteOwner'],slot['RemoteGroup'],slot['COLLECTOR_HOST_STRING']]
   for entry in value:
-      r_server.lpush(slot['Name'],entry)
-  
+      # we could probably make this faster by pipelining
+      r_server.lpush(key,entry)
